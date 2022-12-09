@@ -119,8 +119,8 @@ class F0:
         filename = asksaveasfilename(initialfile='Untitled.png', defaultextension=".png",
                                      filetypes=[("png", "*.png"), ("jpg", "*.jpg")])
         plt.plot(self.times, self.f0)
-        plt.ylabel("Frequency [Hz]")
-        plt.xlabel("Time [s]")
+        plt.ylabel("Częstotliwość [Hz]")
+        plt.xlabel("Czas [s]")
         plt.title("F0")
         plt.savefig(filename)
 
@@ -155,7 +155,7 @@ class Klasyfikacja(F0):
     def classify(self, filename_path: str or ndarray, gmm_models: list, fs=16000):
 
         feature_proba = self.feature(filename_path, fs)
-        class_name = ["k", "m"]
+        class_name = ["kobieta", "mężczyzna"]
 
         audio_scores_gender = []
         for i in range(0, len(gmm_models)):
@@ -184,7 +184,7 @@ class Klasyfikacja(F0):
             audio_scores = []
         else:
             # class_name = ["płaska intonacja", "duża intonacja", "normalna intonacja"]
-            class_name = ["NE", "RA", "SM", "ST", "ZD"]
+            class_name = ["STAN NEUTRALNY", "RADOŚĆ", "SMUTEK", "ST", "ZDZIWIENIE"]
             audio_scores = []
             for i in range(0, len(gmms_model)):
                 audio_scores.append(gmms_model[i].score(new_f0_test))
@@ -200,7 +200,7 @@ class Klasyfikacja(F0):
         audio_scores_gender, class_prediction_gender = self.classify(
             wav, gender_gmm, fs2
         )
-        if class_prediction_gender == "k":
+        if class_prediction_gender == "kobieta":
             audio_scores, class_prediction_intonation = self.classify_intonation(
                 wav, gmm_female, fs
             )
@@ -240,10 +240,11 @@ class GUI:
                           text=self.intonation)
         self.gender_label = Label(self.window,
                                       text=self.gender)
-        self.fig = Figure(figsize=(5, 5),
+        self.fig = Figure(figsize=(5, 3.7),
                      dpi=100)
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.window)
-
+        self.canvas.get_tk_widget().configure(bg='#C0CFB8')
+        self.window['background'] = '#C0CFB8'
     def show_msg(self):
         messagebox.showinfo("Message", "Hey There! I hope you are doing well.")  # do wywalenia
 
@@ -258,44 +259,51 @@ class GUI:
     def plot_f0(self):
         self.fig.clear()
         times, f0 = self.f0.wyswietl_f0(self.audio.frames)
-
-        print("dupa")
-
         plot1 = self.fig.add_subplot(111)
         plot1.clear()
         self.canvas.draw()
-        print(f0)
         plot1.plot(times, f0)
+        # self.fig.subplots_adjust(top=-1)
+        plot1.set_position([0.15, 0.15, 0.8, 0.75])
+        plot1.set_ylabel("Częstotliwość [Hz]")
+        plot1.set_xlabel("Czas [s]")
+        plot1.set_title("F0")
+        self.canvas.get_tk_widget().pack(side=BOTTOM)
         self.canvas.draw()
-        self.canvas.get_tk_widget().pack()
-        toolbar = NavigationToolbar2Tk(self.canvas,
-                                       self.window)
-        toolbar.update()
+
+        # toolbar = NavigationToolbar2Tk(self.canvas,
+        #                                self.window)
+        # toolbar.update()
         self.canvas.draw_idle()
 
         # canvas.get_tk_widget().pack()
 
     def buttons(self):
         wprowadz_audio = Button(text='wprowadź audio', command=self.audio.znajdz_audio)
-        wprowadz_audio.place(x=50, y=60)
+        wprowadz_audio.place(x=100, y=60, anchor=CENTER)
         rozpocznij_nagrywanie = Button(text='rozpocznij nagrywanie', command=self.audio.nagraj_audio)
-        rozpocznij_nagrywanie.place(x=50, y=120)
+        rozpocznij_nagrywanie.place(x=100, y=120, anchor=CENTER)
         zakoncz_nagrywanie = Button(text='zakończ nagrywanie', command=self.audio.zakoncz_audio)
-        zakoncz_nagrywanie.place(x=50, y=150)
+        zakoncz_nagrywanie.place(x=100, y=150, anchor=CENTER)
         zapisz_audio = Button(text='zapisz audio', command=self.audio.zapisz_audio)
-        zapisz_audio.place(x=50, y=200)
+        zapisz_audio.place(x=100, y=200, anchor=CENTER)
         wyswietl_f0 = Button(text='wyświetl kontur F0', command=self.plot_f0)
-        wyswietl_f0.place(x=50, y=260)
+        wyswietl_f0.place(x=100, y=260, anchor=CENTER)
         zapisz_f0 = Button(text='zapisz kontur F0', command=self.f0.zapisz_f0)
-        zapisz_f0.place(x=50, y=290)
+        zapisz_f0.place(x=100, y=290, anchor=CENTER)
         wyswietl_emocje = Button(text='wyświetl emocje', command=self.wyswietl_emocje_text)
-        wyswietl_emocje.place(x=50, y=350)
+        wyswietl_emocje.place(x=100, y=350, anchor=CENTER)
+
         self.gender_label = Label(self.window,
-                          text=self.gender)
-        self.gender_label.place(x=450,y=60)
+                          text=self.gender, width=20, height=1, bg='#b8c0cf')
+        self.gender_label.place(x=480,y=60, anchor=CENTER)
         self.intonation_label = Label(self.window,
-                          text=self.intonation)
-        self.intonation_label.place(x=450,y=90)
+                          text=self.intonation, width=20, height=1, bg='#b8c0cf')
+        self.intonation_label.place(x=480,y=90, anchor=CENTER)
+        text_box = Label(self.window,text = 'Płeć: ', width=7, height=1, bg='#b8c0cf')
+        text_box.place(x = 400, y = 60, anchor = CENTER)
+        text_box1 = Label(self.window, text='Emocja: ', width=7, height=1, bg='#b8c0cf')
+        text_box1.place(x=400, y=90, anchor=CENTER)
         self.window.mainloop()
 
 gui = GUI()
