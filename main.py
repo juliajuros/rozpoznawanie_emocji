@@ -24,7 +24,7 @@ class Audio:
         self.frames_save = []
         self.format = pyaudio.paInt16
         self.channels = 1
-        self.fs = 16000
+        self.fs = 16000 
         self.frames_per_buffer = 1024
         self.filename = ''
         self.filetypes = ['*.wav', "*.mp3", "*.flac", "*.m4a"]
